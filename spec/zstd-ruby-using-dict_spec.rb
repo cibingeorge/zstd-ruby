@@ -15,6 +15,11 @@ RSpec.describe Zstd do
       IO.read("#{__dir__}/dictionary")
     end
 
+    it 'should return dictionary id' do
+      dict_id = Zstd.get_dict_id(dictionary)
+      expect(dict_id).to eq(1096339042)
+    end
+
     it 'should work' do
       compressed_using_dict = Zstd.compress_using_dict(user_json, dictionary)
       compressed = Zstd.compress(user_json)

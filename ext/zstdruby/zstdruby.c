@@ -1,4 +1,5 @@
 #include <common.h>
+#include "./libzstd/zdict.h"
 
 extern VALUE rb_mZstd;
 
@@ -187,6 +188,24 @@ static VALUE rb_decompress_using_dict(int argc, VALUE *argv, VALUE self)
   return output;
 }
 
+
+
+static VALUE rb_get_dict_id(int argc, VALUE *argv, VALUE self)
+{
+  VALUE dict;
+  rb_scan_args(argc, argv, "1", &dict);
+
+  char* dict_buffer = RSTRING_PTR(dict);
+  size_t dict_size = RSTRING_LEN(dict);
+
+  unsigned cdictid = ZDICT_getDictID(dict_buffer, dict_size);
+  if (cdictid == 0) {
+    rb_raise(rb_eRuntimeError, "%s", "Invalid dictionary id");
+  }
+  return UINT2NUM(cdictid);
+}
+
+
 void
 zstd_ruby_init(void)
 {
@@ -195,4 +214,5 @@ zstd_ruby_init(void)
   rb_define_module_function(rb_mZstd, "compress_using_dict", rb_compress_using_dict, -1);
   rb_define_module_function(rb_mZstd, "decompress", rb_decompress, 1);
   rb_define_module_function(rb_mZstd, "decompress_using_dict", rb_decompress_using_dict, -1);
+  rb_define_module_function(rb_mZstd, "get_dict_id", rb_get_dict_id, -1);
 }
